@@ -1,5 +1,8 @@
 pipeline {
     agent any
+    tools {
+        maven 'Maven3'
+    }
     parameters {
         choice(name: 'DEPLOY_ACTION', choices: ['DEPLOY_NEW', 'ROLLBACK'], description: 'Choose DEPLOY_NEW for normal deployment or ROLLBACK for rollback')
     }

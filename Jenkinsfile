@@ -29,7 +29,7 @@ pipeline {
                 expression { params.DEPLOY_ACTION == 'DEPLOY_NEW' }
             }
             steps {
-                sh 'sh 'mvn clean package -Dmaven.test.skip=true''
+                sh 'mvn clean package -Dmaven.test.skip=true'
                 script {
                     def warFile = sh(script: "ls target/*.war", returnStdout: true).trim()
                     sh "cp ${warFile} ${WAR_STORAGE_PATH}/app_${env.BUILD_NUMBER}.war"

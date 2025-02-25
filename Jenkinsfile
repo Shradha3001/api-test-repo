@@ -11,20 +11,8 @@ pipeline {
         S3_BUCKET = 'flipkart-backup-jenkins-stagging'
         BUILD_LIMIT = 4
         WAR_COUNT_LIMIT = 3
-        TIME_START = 8
-        TIME_END = 20
     }
     stages {
-        stage('Check Build Time') {
-            steps {
-                script {
-                    def currentHour = sh(script: "TZ='Asia/Kolkata' date +'%H'", returnStdout: true).trim().toInteger()
-                    if (currentHour < TIME_START || currentHour > TIME_END) {
-                        error("Builds only allowed between 8 AM and 8 PM IST")
-                    }
-                }
-            }
-        }
         stage('Checkout Code') {
             when {
                 expression { params.DEPLOY_ACTION == 'DEPLOY_NEW' }

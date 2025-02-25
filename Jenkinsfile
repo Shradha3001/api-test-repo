@@ -12,7 +12,7 @@ pipeline {
         EB_ENV_NAME = 'Test-env-jenkins-env'
         WAR_STORAGE_PATH = '/var/lib/jenkins/war_backups'
         S3_BUCKET = 'flipkart-backup-jenkins-stagging'
-        BUILD_LIMIT = 4
+        BUILD_LIMIT = 20
         WAR_COUNT_LIMIT = 3
     }
     stages {
@@ -29,7 +29,7 @@ pipeline {
                 expression { params.DEPLOY_ACTION == 'DEPLOY_NEW' }
             }
             steps {
-                sh 'mvn clean package -DskipTests'
+                sh 'mvn clean package -Dmaven.test.skip=true'
 
                 script {
                     def warFile = sh(script: "ls target/*.war", returnStdout: true).trim()

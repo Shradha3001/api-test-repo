@@ -53,7 +53,20 @@ pipeline {
                 script {
                     def warFileToDeploy = params.DEPLOY_ACTION == 'ROLLBACK' ? "${WAR_STORAGE_PATH}/last_successful.war" : sh(script: "ls target/*.war", returnStdout: true).trim()
                     sh "aws s3 cp ${warFileToDeploy} s3://${S3_BUCKET}/prod/app.war"
-                    sh "aws elasticbeanstalk update-environment --application-name ${env.EB_APP_NAME} --environment-name ${env.EB_ENV_NAME} --version-label v${env.BUILD_NUMBER} --region ${env.AWS_REGION} --s3-bucket ${env.S3_BUCKET}"
+                    
+                    sh """
+                        aws elasticbeanstalk create-application-version --application-name ${env.EB_APP_NAME} \
+                        --version-label v${env.BUILD_NUMBER} \
+                        --source-bundle S3Bucket=${env.S3_BUCKET},S3Key=prod/app.war \
+                        --region ${env.AWS_REGION}
+                    """
+                    
+                    sh """
+                        aws elasticbeanstalk update-environment --application-name ${env.EB_APP_NAME} \
+                        --environment-name ${env.EB_ENV_NAME} \
+                        --version-label v${env.BUILD_NUMBER} \
+                        --region ${env.AWS_REGION}
+                    """
                 }
             }
         }

@@ -53,19 +53,22 @@ pipeline {
                 script {
                     def warFileToDeploy = params.DEPLOY_ACTION == 'ROLLBACK' ? "${WAR_STORAGE_PATH}/last_successful.war" : sh(script: "ls target/*.war", returnStdout: true).trim()
                     sh "aws s3 cp ${warFileToDeploy} s3://${S3_BUCKET}/prod/app.war"
-                    
+
+                    // Create a new application version without triggering bucket creation
                     sh """
                         aws elasticbeanstalk create-application-version --application-name ${env.EB_APP_NAME} \
                         --version-label v${env.BUILD_NUMBER} \
                         --source-bundle S3Bucket=${env.S3_BUCKET},S3Key=prod/app.war \
                         --region ${env.AWS_REGION}
                     """
-                    
+
+                    // Ensure Elastic Beanstalk doesn't try to create a new S3 bucket during update
                     sh """
                         aws elasticbeanstalk update-environment --application-name ${env.EB_APP_NAME} \
                         --environment-name ${env.EB_ENV_NAME} \
                         --version-label v${env.BUILD_NUMBER} \
-                        --region ${env.AWS_REGION}
+                        --region ${env.AWS_REGION} \
+                        --no-include-new-application-versions
                     """
                 }
             }

@@ -8,7 +8,7 @@ pipeline {
     }
     environment {
         AWS_REGION = 'ap-south-1'
-        EB_APP_NAME = 'MyApp'
+        EB_APP_NAME = 'test-env-jenkins'
         EB_ENV_NAME = 'Test-env-jenkins-env'
         WAR_STORAGE_PATH = '/var/lib/jenkins/war_backups'
         S3_BUCKET = 'flipkart-backup-jenkins-stagging'

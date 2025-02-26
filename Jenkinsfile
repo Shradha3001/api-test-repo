@@ -13,7 +13,7 @@ pipeline {
         WAR_STORAGE_PATH = '/var/lib/jenkins/war_backups'
         S3_BUCKET = 'flipkart-backup-jenkins-stagging'
         BUILD_LIMIT = 20
-        WAR_COUNT_LIMIT = 3
+        WAR_COUNT_LIMIT = 30
     }
     stages {
         stage('Checkout Code') {

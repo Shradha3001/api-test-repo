@@ -34,7 +34,7 @@ pipeline {
                     }
                     
                     if (build_count >= BUILD_LIMIT.toInteger()) {
-                        error "🚨 Daily build limit (${BUILD_LIMIT}) reached for ${today}. Try again tomorrow!"
+                        error "🚨 Daily build limit (${BUILD_LIMIT}) reached for ${today}. Try again tomorrow!!!"
                     }
                     
                     writeFile(file: "${BUILD_TRACK_FILE}", text: "${today}:${build_count + 1}")

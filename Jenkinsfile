@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'Test-env-jenkins-env' } // Run pipeline on the agent node
+    agent { label 'Test-env-jenkins-env' }
     tools {
         maven 'Maven3'
     }
@@ -12,10 +12,35 @@ pipeline {
         EB_ENV_NAME = 'Test-env-jenkins-env'
         WAR_STORAGE_PATH = '/var/lib/jenkins/war_backups'
         S3_BUCKET = 'flipkart-backup-jenkins-stagging'
-        BUILD_LIMIT = 30
-        WAR_COUNT_LIMIT = 30
+        BUILD_LIMIT = 4
+        WAR_COUNT_LIMIT = 4
+        BUILD_TRACK_FILE = "/var/lib/jenkins/war_backups/build_tracker.txt"  // File to track builds
     }
     stages {
+        stage('Limit Builds Per Day') {
+            steps {
+                script {
+                    sh "mkdir -p ${WAR_STORAGE_PATH}"
+                    
+                    def today = sh(script: "date +%Y-%m-%d", returnStdout: true).trim()
+                    def build_count = 0
+                    
+                    if (fileExists("${BUILD_TRACK_FILE}")) {
+                        def content = readFile("${BUILD_TRACK_FILE}").trim()
+                        def parts = content.tokenize(':')
+                        if (parts.size() == 2 && parts[0] == today) {
+                            build_count = parts[1].toInteger()
+                        }
+                    }
+                    
+                    if (build_count >= BUILD_LIMIT.toInteger()) {
+                        error "🚨 Daily build limit (${BUILD_LIMIT}) reached for ${today}. Try again tomorrow!"
+                    }
+                    
+                    writeFile(file: "${BUILD_TRACK_FILE}", text: "${today}:${build_count + 1}")
+                }
+            }
+        }
         stage('Checkout Code') {
             when {
                 expression { params.DEPLOY_ACTION == 'DEPLOY_NEW' }

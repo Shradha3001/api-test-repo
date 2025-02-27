@@ -1,5 +1,5 @@
 pipeline {
-    agent any
+    agent { label 'Test-env-jenkins-env' } // Run pipeline on the agent node
     tools {
         maven 'Maven3'
     }
@@ -30,7 +30,6 @@ pipeline {
             }
             steps {
                 sh 'mvn clean package -Dmaven.test.skip=true'
-
                 script {
                     def warFile = sh(script: "ls target/*.war", returnStdout: true).trim()
                     sh "cp ${warFile} ${WAR_STORAGE_PATH}/app_${env.BUILD_NUMBER}.war"
@@ -54,7 +53,7 @@ pipeline {
                     def warFileToDeploy = params.DEPLOY_ACTION == 'ROLLBACK' ? "${WAR_STORAGE_PATH}/last_successful.war" : sh(script: "ls target/*.war", returnStdout: true).trim()
                     sh "aws s3 cp ${warFileToDeploy} s3://${S3_BUCKET}/prod/app.war"
 
-                    // Create a new application version
+                    // Create a new application version in Elastic Beanstalk
                     sh """
                         aws elasticbeanstalk create-application-version --application-name ${env.EB_APP_NAME} \
                         --version-label v${env.BUILD_NUMBER} \
